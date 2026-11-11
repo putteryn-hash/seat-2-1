@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>จองที่นั่ง 2/1</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#fff7fb;--card:#ffffff;--ink:#4a3552;--mute:#8b7a94;--free:#2fbf71;--free-d:#1f9a58;--taken:#ef4b5f;--taken-d:#c2303f;--mine:#ffb400;--board:#2f5d50;--line:#f0d9e8;--acc:#ff7eb6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1e1724;--card:#2a2032;--ink:#f5e9f7;--mute:#b3a1bd;--line:#43344d;--board:#25483e}}
+:root[data-theme="dark"]{--bg:#1e1724;--card:#2a2032;--ink:#f5e9f7;--mute:#b3a1bd;--line:#43344d;--board:#25483e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Mali','Sarabun','Noto Sans Thai',system-ui,sans-serif;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:16px 12px 40px}
+h1{text-align:center;font-size:clamp(20px,5.5vw,30px);margin:6px 0 4px;line-height:1.3}
+h1 span{display:inline-block;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-6deg)}}
+.sub{text-align:center;color:var(--mute);font-size:14px;margin:0 0 12px}
+.stats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:13px}
+.pill{background:var(--card);border:2px solid var(--line);border-radius:99px;padding:4px 12px}
+.pill b{font-weight:700}
+.lock{display:none;text-align:center;background:var(--card);color:var(--ink);border:3px solid var(--line);border-radius:24px;padding:36px 16px;margin:24px 0;font-weight:600;font-size:18px}
+.lock.on{display:block}
+.lock .t{font-size:clamp(40px,14vw,64px);letter-spacing:2px;display:block;margin:14px 0 10px;color:var(--acc);font-variant-numeric:tabular-nums}
+.lock .s{display:block;font-size:14px;color:var(--mute);font-weight:400}
+body.pre .stats,body.pre .top,body.pre .room,body.pre .legend,body.pre .admin,body.pre .net,body.pre .sub{display:none}
+.net{text-align:center;font-size:12px;color:var(--mute);min-height:16px;margin-bottom:6px}
+.top{display:flex;gap:10px;align-items:stretch;margin-bottom:16px}
+.teacher{flex:0 0 22%;background:#ffe2a8;color:#5b4210;border:3px solid #e5b25c;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:13px;padding:6px}
+.board{flex:1;background:var(--board);color:#e8fff4;border:5px solid #b98a5a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:clamp(16px,4.5vw,22px);letter-spacing:2px;padding:12px 6px;box-shadow:inset 0 0 12px rgba(0,0,0,.35)}
+.room{background:var(--card);border:3px solid var(--line);border-radius:20px;padding:12px 8px;display:grid;grid-template-columns:repeat(4,1fr) 34px;grid-template-rows:repeat(5,auto);gap:10px 12px;position:relative}
+.pair{display:flex;gap:3px;background:rgba(255,126,182,.12);border-radius:12px;padding:3px}
+.seat{flex:1;min-width:0;height:54px;border:0;border-radius:10px;color:#fff;font:600 12px/1.15 inherit;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:2px;box-shadow:0 3px 0 var(--free-d);background:var(--free);transition:transform .12s,background .25s}
+.seat:active{transform:translateY(2px);box-shadow:0 1px 0 var(--free-d)}
+.seat .n{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.seat .e{font-size:13px;line-height:1}
+.seat.taken{background:var(--taken);box-shadow:0 3px 0 var(--taken-d);cursor:default}
+.seat.mine{outline:3px solid var(--mine);outline-offset:1px;cursor:pointer}
+.seat.flash{animation:pop .5s}
+@keyframes pop{40%{transform:scale(1.15)}}
+.locked .seat:not(.taken){filter:saturate(.35);cursor:not-allowed}
+.door{grid-column:5;align-self:center;writing-mode:vertical-rl;text-align:center;background:#d9c2a3;color:#5a432a;border-radius:8px;font-weight:700;font-size:12px;padding:10px 0;border:2px solid #b39366}
+.legend{display:flex;justify-content:center;gap:14px;margin-top:12px;font-size:12px;color:var(--mute);flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:4px}
+.mask{position:fixed;inset:0;background:rgba(40,20,50,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.mask.on{display:flex}
+.modal{background:var(--card);border-radius:22px;padding:20px;width:100%;max-width:340px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35);animation:pop .3s}
+.modal h2{margin:0 0 4px;font-size:20px}
+.modal p{margin:0 0 12px;color:var(--mute);font-size:14px}
+.modal input{width:100%;font:inherit;font-size:18px;text-align:center;padding:10px;border-radius:14px;border:3px solid var(--line);background:var(--bg);color:var(--ink);outline:none}
+.modal input:focus{border-color:var(--acc)}
+.btn{width:100%;margin-top:12px;font:inherit;font-weight:700;font-size:16px;border:0;border-radius:14px;padding:12px;background:var(--acc);color:#fff;cursor:pointer}
+.btn:disabled{opacity:.6}
+.btn.ghost{background:transparent;color:var(--mute);margin-top:4px;font-weight:600}
+.btn.danger{background:var(--taken)}
+.err{color:var(--taken);font-size:13px;min-height:18px;margin-top:6px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);background:#4a3552;color:#fff;padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.3s;z-index:60;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.admin{text-align:center;margin-top:14px}
+.admin button{font:inherit;font-size:12px;background:none;border:1px dashed var(--mute);color:var(--mute);border-radius:99px;padding:4px 12px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>จองที่นั่งเปิดเทอมภาคเรียนที่ 2 · 2/1</h1>
+  <p class="sub">เลือกที่นั่งที่ชอบ แล้วใส่ชื่อเล่นได้เลย</p>
+  <div class="stats"><div class="pill">ว่าง <b id="cFree">–</b></div><div class="pill">จองแล้ว <b id="cTaken">–</b></div></div>
+  <div class="lock" id="lock">ระบบจองที่นั่งจะเปิดเวลา 09:52 น.<span class="t" id="cd">--:--:--</span><span class="s">กรุณารอสักครู่ หน้านี้จะเปิดให้จองเองอัตโนมัติ</span></div>
+  <div class="net" id="net">กำลังเชื่อมต่อ…</div>
+
+  <div class="top">
+    <div class="teacher">โต๊ะครู</div>
+    <div class="board">กระดานหน้าห้อง</div>
+  </div>
+
+  <div class="room" id="room"></div>
+  <div class="legend"><span><i style="background:var(--free)"></i>ว่าง</span><span><i style="background:var(--taken)"></i>จองแล้ว</span><span><i style="background:var(--mine);"></i>ที่นั่งของฉัน (กดเพื่อยกเลิก)</span></div>
+  <div class="admin" id="admin"><button id="resetAll">ล้างการจองทั้งหมด (ครู)</button></div>
+</div>
+
+<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ===== ตั้งค่า (แก้ 2 ส่วนนี้) =====
+const firebaseConfig = {
+  apiKey: "AIzaSyDxJl-xUqWbdMVQR27WeYujWQxqrf1bnto",
+  authDomain: "seat-2-1.firebaseapp.com",
+  databaseURL: "https://seat-2-1-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "seat-2-1",
+  storageBucket: "seat-2-1.firebasestorage.app",
+  messagingSenderId: "286203133964",
+  appId: "1:286203133964:web:524df9165c108acdb4ee29"
+};
+const OPEN_AT = new Date("2026-11-11T11:30:00+07:00").getTime(); // เวลาเปิดจอง (ต้องตรงกับ rules ในไฟล์ database.rules.json)
+const PW_HASH = '3089b13b8026d29ac45d43370553f411371fc9782d2747c0c9e7b05ffd237926'; // รหัสครู (แฮช)
+const NAME_MAX = 12;
+
+// ===== ผังห้อง =====
+const SEATS = [];
+const room = document.getElementById('room');
+const els = {};
+for (let g = 1; g <= 4; g++) for (let r = 1; r <= 5; r++) {
+  const pair = document.createElement('div'); pair.className = 'pair';
+  pair.style.gridColumn = g; pair.style.gridRow = r;
+  const sides = (g === 3 && r === 5) ? ['L'] : ['L', 'R'];
+  if (sides.length === 1) pair.style.width = '50%';
+  for (const s of sides) {
+    const id = `c${g}r${r}${s}`; SEATS.push(id);
+    const b = document.createElement('button'); b.className = 'seat'; b.dataset.id = id;
+    b.innerHTML = '<span class="n">ว่าง</span>';
+    b.addEventListener('click', () => onSeat(id));
+    els[id] = b; pair.appendChild(b);
+  }
+  room.appendChild(pair);
+}
+for (const r of [1, 5]) { const d = document.createElement('div'); d.className = 'door'; d.textContent = 'ประตู'; d.style.gridRow = r; room.appendChild(d); }
+
+// ===== สถานะ =====
+const $ = id => document.getElementById(id);
+let db = null, me = null, state = {}, loaded = false, offset = 0;
+const isOpen = () => Date.now() + offset >= OPEN_AT; // ใช้เวลาของเซิร์ฟเวอร์ ไม่ขึ้นกับนาฬิกาเครื่อง
+
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2600); }
+const mySeat = () => SEATS.find(id => state[id] && state[id].by === me && me);
+
+function paint(id) {
+  const el = els[id], s = state[id], name = s && s.name;
+  const sig = name ? name + '|' + (s.by === me) : '';
+  if (el.dataset.sig === sig) return;
+  const had = el.dataset.sig; el.dataset.sig = sig;
+  el.classList.toggle('taken', !!name);
+  el.classList.toggle('mine', !!name && s.by === me);
+  el.querySelector('.n').textContent = name || 'ว่าง';
+  if (had !== undefined) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+}
+function paintAll() {
+  SEATS.forEach(paint);
+  const taken = SEATS.filter(id => state[id] && state[id].name).length;
+  $('cTaken').textContent = taken; $('cFree').textContent = SEATS.length - taken;
+}
+
+function tick() {
+  const open = isOpen();
+  $('lock').classList.toggle('on', !open);
+  document.body.classList.toggle('pre', !open);
+  room.classList.toggle('locked', !open);
+  if (!open) {
+    let s = Math.max(0, Math.ceil((OPEN_AT - Date.now() - offset) / 1000));
+    const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); s %= 60;
+    $('cd').textContent = [h, m, s].map(n => String(n).padStart(2, '0')).join(':');
+  }
+}
+setInterval(tick, 250); tick();
+
+// ===== Modal =====
+const mask = $('mask'), modal = $('modal');
+function closeModal() { mask.classList.remove('on'); modal.innerHTML = ''; }
+mask.addEventListener('click', e => { if (e.target === mask) closeModal(); });
+function seatLabel(id) { const m = id.match(/c(\d)r(\d)([LR])/); return `แถว ${m[1]} โต๊ะที่ ${m[2]}${m[3] === 'L' ? ' (ซ้าย)' : ' (ขวา)'}`; }
+
+function onSeat(id) {
+  const s = state[id];
+  if (!db || !me) return toast('กำลังเชื่อมต่อ ลองใหม่อีกครั้งนะ');
+  if (s && s.name) {
+    if (s.by === me) return openCancel(id, 'ยกเลิกการจองที่นั่งนี้ไหม?');
+    return toast(`ที่นั่งนี้ ${s.name} จองแล้ว`);
+  }
+  if (!isOpen()) return toast('ยังไม่ถึงเวลาเปิดจอง');
+  if (mySeat()) return toast('คุณจองไว้แล้ว กดที่นั่งของคุณ (กรอบเหลือง) เพื่อยกเลิกก่อน');
+  openBook(id);
+}
+
+function openBook(id) {
+  modal.innerHTML = `<h2>จองที่นั่งนี้</h2><p>${seatLabel(id)}</p>
+  <input id="nm" maxlength="${NAME_MAX}" placeholder="พิมพ์ชื่อเล่น" autocomplete="off">
+  <div class="err" id="er"></div>
+  <button class="btn" id="ok">ยืนยันการจอง</button><button class="btn ghost" id="no">ยกเลิก</button>`;
+  mask.classList.add('on');
+  const nm = $('nm'), ok = $('ok'); setTimeout(() => nm.focus(), 50);
+  $('no').onclick = closeModal;
+  const go = async () => {
+    const name = nm.value.trim().replace(/\s+/g, ' ');
+    if (!name) { $('er').textContent = 'กรุณาพิมพ์ชื่อเล่นก่อนนะ'; return; }
+    ok.disabled = true; ok.textContent = 'กำลังจอง…'; $('er').textContent = '';
+    const r = await claim(id, name);
+    if (r === 'ok') { closeModal(); toast('จองสำเร็จแล้ว'); }
+    else {
+      $('er').textContent = r === 'taken' ? 'ขออภัย มีคนจองตัดหน้าไปแล้ว เลือกที่นั่งอื่นนะ' : 'เกิดปัญหา ลองใหม่อีกครั้งนะ';
+      ok.disabled = false; ok.textContent = 'ยืนยันการจอง';
+      if (r === 'taken') setTimeout(closeModal, 1800);
+    }
+  };
+  ok.onclick = go; nm.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+}
+
+function openCancel(id, text) {
+  modal.innerHTML = `<h2>${seatLabel(id)}</h2><p>${text}</p>
+  <button class="btn danger" id="ok">ยืนยันยกเลิก</button><button class="btn ghost" id="no">ปิด</button>`;
+  mask.classList.add('on'); $('no').onclick = closeModal;
+  $('ok').onclick = async () => { $('ok').disabled = true; try { await remove(ref(db, 'seats/' + id)); toast('ยกเลิกแล้ว'); } catch (e) { toast('ยกเลิกไม่สำเร็จ ลองใหม่นะ'); } closeModal(); };
+}
+
+// ===== จองแบบ transaction: ถ้ามีคนจองก่อนแล้ว ระบบจะไม่เขียนทับ =====
+async function claim(id, name) {
+  try {
+    const res = await runTransaction(ref(db, 'seats/' + id), cur => {
+      if (cur && cur.name) return; // มีคนจองแล้ว -> ยกเลิกการเขียน
+      return { name, by: me, at: Date.now() };
+    }, { applyLocally: false });
+    return res.committed ? 'ok' : 'taken';
+  } catch (e) { return 'error'; }
+}
+
+// ===== ล้างทั้งหมด (ครู) =====
+async function sha(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+$('resetAll').onclick = () => {
+  modal.innerHTML = `<h2>ล้างการจองทั้งหมด</h2><p>สำหรับครู กรุณาใส่รหัส ที่นั่งทุกตัวจะกลับเป็น “ว่าง”</p><input id="pw" type="password" placeholder="รหัส" autocomplete="off"><div class="err" id="er"></div><button class="btn danger" id="ok">ล้างทั้งหมด</button><button class="btn ghost" id="no">ยกเลิก</button>`;
+  mask.classList.add('on'); $('no').onclick = closeModal; setTimeout(() => $('pw').focus(), 50);
+  const go = async () => {
+    if (!db) { $('er').textContent = 'ยังไม่ได้เชื่อมต่อ ลองใหม่อีกครั้ง'; return; }
+    if (await sha($('pw').value) !== PW_HASH) { $('er').textContent = 'รหัสไม่ถูกต้อง'; return; }
+    $('ok').disabled = true; $('ok').textContent = 'กำลังล้าง…';
+    await Promise.all(SEATS.filter(id => state[id] && state[id].name).map(id => remove(ref(db, 'seats/' + id)).catch(() => {})));
+    closeModal(); toast('ล้างเรียบร้อย');
+  };
+  $('ok').onclick = go; $('pw').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+};
+
+// ===== เริ่มระบบเรียลไทม์ =====
+(async function init() {
+  const net = $('net');
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith('วาง')) { net.textContent = 'ยังไม่ได้ใส่ค่า Firebase config ในไฟล์'; return; }
+  const slow = setTimeout(() => { if (!loaded) net.textContent = 'ยังเชื่อมต่อไม่ได้ ข้อมูลอาจไม่เป็นปัจจุบัน…'; }, 10000);
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getDatabase(app);
+    onValue(ref(db, '.info/serverTimeOffset'), s => { offset = s.val() || 0; tick(); });
+    onValue(ref(db, '.info/connected'), s => { if (loaded) net.textContent = s.val() ? 'เชื่อมต่อแบบเรียลไทม์แล้ว' : 'หลุดการเชื่อมต่อ กำลังเชื่อมใหม่…'; });
+    const cred = await signInAnonymously(getAuth(app)); me = cred.user.uid;
+    onValue(ref(db, 'seats'), snap => {
+      state = snap.val() || {}; paintAll();
+      if (!loaded) { loaded = true; clearTimeout(slow); net.textContent = 'เชื่อมต่อแบบเรียลไทม์แล้ว'; }
+    }, (e) => { net.textContent = 'อ่านข้อมูลไม่ได้ รหัสข้อผิดพลาด: ' + (e.code || e.message || e); });
+  } catch (e) { console.error(e); net.textContent = 'เชื่อมต่อไม่สำเร็จ รหัสข้อผิดพลาด: ' + (e.code || e.message || e); }
+})();
+</script>
+</body>
+</html>
